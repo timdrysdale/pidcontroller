@@ -16,7 +16,7 @@
 // SET BOTH THESE TO FALSE BEFORE ROLLING OUT IN PRODUCTION
 
 // report additional information (may affect performance)
-bool debug = true;
+bool debug = false;
 bool trace = false;
 bool permitOverspeed = false;
 
@@ -837,8 +837,8 @@ void statePositionDuring(void) {
   }
 
   if (doReport) { //flag set in interrupt routine
-    //report();
-	if (debug) {
+
+	if (false) { //disable non-standard reporting in debug mode for now
 	  Serial.print("c=");
 	  Serial.print(positionToExternalUnits(controller.getCommand()));
 	  Serial.print(", enc=");
