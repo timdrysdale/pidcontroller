@@ -228,7 +228,8 @@ float motorCommand = 0;
 float positionChangeCommand = 0;
 float positionCommandMin = -2;  //wider range, to permit ramping
 float positionCommandMax = +2;
- 
+float positionRampDelta = 0; // amount of position in normalised units, to add each step
+bool positionRamping = false; // only set this true if doing a position ramp
 
 // SMStateChangePIDVelocity
 float velocityChangeCommand = 0;
@@ -737,6 +738,9 @@ void statePositionWaiting(void) {
   motor.brake(); //This is just free-wheeling, so needs no further commands.
   motorDriveVolts = 0;
 
+  //cancel any ramping
+  positionRamping = false;
+  
   lastCommandMillis = millis();
 
   velocityLimitCount = 0;
@@ -804,10 +808,14 @@ void statePositionDuring(void) {
 
   float v, p, y, yp;
   float c, error, errp;
-  
+
   if (doPID) {
 
-    c = controller.getCommand();
+	if (positionRamping) {
+	  controller.setCommand(controller.getCommand() + positionRampDelta);
+	}
+
+	c = controller.getCommand();
 	p = disk.getDisplacement();
     v = disk.getVelocity();
 
@@ -930,6 +938,9 @@ void statePositionAfter(void) {
 
   state = STATE_STOPPING_BEFORE;
 
+  // cancel any ramping
+  positionRamping = false; 
+  
   // return to non-scaled Kp
   controller.setKp(controller.getKp() / positionPIDScaleFactor);
 
@@ -1335,7 +1346,17 @@ StateType readSerialJSON(StateType state) {
       }
 	  
 
-    } else if (strcmp(set, "drive")==0) {
+    } else if (strcmp(set, "ramp")==0) {
+
+      if(state == STATE_POSITION_READY) {
+		
+		positionRampDelta = positionFromExternalUnits(doc["to"]) * Ts;
+ 		positionRamping = true;
+		state = STATE_POSITION_DURING;
+
+      }
+
+	} else if (strcmp(set, "drive")==0) {
   
       if(!doc["mon"].isNull()) {
 		float mon = doc["mon"];
