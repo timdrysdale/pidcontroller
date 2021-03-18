@@ -16,7 +16,7 @@
 // SET BOTH THESE TO FALSE BEFORE ROLLING OUT IN PRODUCTION
 
 // report additional information (may affect performance)
-bool debug = false;
+bool debug = true;
 bool trace = false;
 bool permitOverspeed = false;
 
@@ -813,6 +813,10 @@ void statePositionDuring(void) {
 
 	if (positionRamping) {
 	  controller.setCommand(controller.getCommand() + positionRampDelta);
+	  if (debug) {
+		Serial.print("setting command to ");
+		Serial.println(controller.getCommand());
+	  }
 	}
 
 	c = controller.getCommand();
