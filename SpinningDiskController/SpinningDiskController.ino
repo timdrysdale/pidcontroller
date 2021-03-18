@@ -1350,7 +1350,7 @@ StateType readSerialJSON(StateType state) {
 
       if(state == STATE_POSITION_READY) {
 		
-		positionRampDelta = positionFromExternalUnits(doc["to"]) * Ts;
+		positionRampDelta = velocityFromExternalUnits(doc["to"]) * controller.getTs();
  		positionRamping = true;
 		state = STATE_POSITION_DURING;
 
