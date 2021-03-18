@@ -814,7 +814,9 @@ void statePositionDuring(void) {
 	if (positionRamping) {
 	  controller.setCommand(controller.getCommand() + positionRampDelta);
 	  if (debug) {
-		Serial.print("setting command to ");
+		Serial.print("adding ");
+	    Serial.print(positionRampDelta);	  
+        Serial.print(" to command to get ");
 		Serial.println(controller.getCommand());
 	  }
 	}
@@ -1355,6 +1357,16 @@ StateType readSerialJSON(StateType state) {
       if(state == STATE_POSITION_READY) {
 		
 		positionRampDelta = velocityFromExternalUnits(doc["to"]) * controller.getTs();
+		
+		if (debug) {
+		  Serial.print("ramp = ");
+		  Serial.print(velocityFromExternalUnits(doc["to"]));
+		  Serial.print(" Ts = ");
+		  Serial.print(controller.getTs());
+		  Serial.print(" delta=");
+		  Serial.println(positionRampDelta);
+		}
+		
  		positionRamping = true;
 		state = STATE_POSITION_DURING;
 
